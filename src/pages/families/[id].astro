@@ -1,0 +1,13 @@
+---
+import Base from '../../layouts/Base.astro';
+import ResourceCard from '../../components/ResourceCard.astro';
+import { familyPathways } from '../../data/family-content';
+import { resources } from '../../data/resources';
+export function getStaticPaths(){return familyPathways.map(path=>({params:{id:path.id},props:{path}}));}
+const {path}=Astro.props;
+---
+<Base title={path.title} description={path.description}>
+  <section class="page-heading wrap"><a class="breadcrumb" href="/families/">← Parents &amp; Families</a><span class="eyebrow">YOUR FAMILY’S NEXT STEP</span><h1>{path.title}</h1><p class="intro">{path.description}</p><p class="coverage-note">{path.intro}</p></section>
+  <div class="wrap pathway-steps">{path.groups.map(group=><section><div class="section-heading"><div><h2>{group.title}</h2><p>{group.text}</p></div></div><div class="resource-grid">{group.ids.map(id=><ResourceCard resource={resources.find(resource=>resource.id===id)!}/>)}</div></section>)}</div>
+  <section class="section wrap"><div class="next-step-box"><div><h2>Take one manageable step.</h2><p>Ask your first contact: “If your program isn’t the right fit, where could I try next?” Check costs, location, eligibility and appointment arrangements with each provider.</p><div class="pills"><a href="/families/#parenting">Explore all family topics →</a><a href="/resources/?category=family">Find help by need &amp; location →</a></div></div></div></section>
+</Base>

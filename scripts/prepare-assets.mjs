@@ -1,0 +1,30 @@
+import sharp from 'sharp';
+import { mkdir, writeFile } from 'node:fs/promises';
+await mkdir('public/images/brand', { recursive: true });
+await mkdir('artifacts/brand', { recursive: true });
+const ink='#17253f', coral='#c34636', paper='#fcfaf7';
+const mark=(color)=>'<path d="M5 14 16 4l11 10v14h-6V18H11v10H5Z" fill="none" stroke="'+color+'" stroke-width="2.2" stroke-linejoin="round"/><path d="m16 8 1 3 3 1-3 1-1 3-1-3-3-1 3-1Z" fill="'+color+'"/>';
+const icon=(color)=>'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">'+mark(color)+'</svg>';
+// Geometric paths keep exported wordmarks independent of installed fonts.
+const word=(color,dot)=>'<g fill="none" stroke="'+color+'" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15v18q0 12 11 12t11-12V15m0 20v13q0 15-18 15"/><path d="M64 19q-5-5-11-5-14 0-14 16t14 16q6 0 11-5"/><path d="M103 17q-7-4-12-3-14 0-14 16t14 16q12 0 12-13V15v33q0 15-21 15"/></g><circle cx="120" cy="44" r="4" fill="'+dot+'"/>';
+const logo=(color,dot,primary)=>'<svg xmlns="http://www.w3.org/2000/svg" width="'+(primary?420:230)+'" height="96" viewBox="0 0 '+(primary?420:230)+' 96"><g transform="translate(5 16) scale(2)">'+mark(color)+'</g><g transform="translate(87 9)">'+word(color,dot)+'</g>'+(primary?'<text x="235" y="42" fill="'+color+'" font-family="Arial, sans-serif" font-size="17" font-weight="700" letter-spacing="1">YOUR CANADA</text><text x="235" y="65" fill="'+color+'" font-family="Arial, sans-serif" font-size="17" font-weight="700" letter-spacing="1">GUIDE</text>':'')+'</svg>';
+await writeFile('public/images/brand/primary.svg',logo(ink,coral,true));
+await writeFile('public/images/brand/compact.svg',logo(ink,coral,false));
+await writeFile('public/images/brand/dark-background.svg',logo('#ffffff','#ef9b89',true));
+await writeFile('public/images/brand/monochrome.svg',logo('#000000','#000000',true));
+await writeFile('public/images/brand/icon.svg',icon(ink));
+await writeFile('public/images/brand/ycg-logo.svg',logo(ink,coral,false));
+await writeFile('public/favicon.svg','<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><style>path{stroke:'+ink+'}.star{fill:'+ink+';stroke:none}@media(prefers-color-scheme:dark){path{stroke:#fff}.star{fill:#fff}}</style>'+mark(ink).replace('fill="'+ink+'"','class="star"')+'</svg>');
+for(const size of [16,32])await sharp(Buffer.from(icon(ink))).resize(size,size).png().toFile('public/images/brand/favicon-'+size+'.png');
+const avatar='<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180"><rect width="180" height="180" rx="36" fill="'+ink+'"/><g transform="translate(26 26) scale(4)">'+mark('#ffffff')+'</g></svg>';
+await sharp(Buffer.from(avatar)).png().toFile('public/images/brand/apple-touch-icon.png');
+await sharp(Buffer.from(avatar)).resize(512).png().toFile('public/images/brand/social-avatar.png');
+const social='<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630"><rect width="1200" height="630" fill="'+paper+'"/><rect width="16" height="630" fill="'+coral+'"/><g transform="translate(80 55) scale(3)">'+mark(ink)+'</g><g transform="translate(215 42) scale(1.7)">'+word(ink,coral)+'</g><text x="90" y="315" font-family="Arial, sans-serif" font-size="56" font-weight="bold" fill="'+ink+'">A new chapter.</text><text x="90" y="390" font-family="Arial, sans-serif" font-size="56" font-weight="bold" fill="'+ink+'">A clearer way forward.</text><text x="90" y="515" font-family="Arial, sans-serif" font-size="30" fill="'+ink+'">Your Canada Guide</text></svg>';
+await sharp(Buffer.from(social)).png().toFile('public/images/brand/social-preview.png');
+// Only the chosen A is exported publicly. B/C are a review artifact.
+const b='<path d="M6 28V5h20v23M12 28V17l4-5 4 5v11" fill="none" stroke="'+ink+'" stroke-width="2.2" stroke-linejoin="round"/>';
+const c='<path d="M5 28V14L16 4l11 10v14M11 28V17h10v11m-9-16h8l-3-3m3 3-3 3" fill="none" stroke="'+ink+'" stroke-width="2.2" stroke-linejoin="round"/>';
+let comparison='<svg xmlns="http://www.w3.org/2000/svg" width="660" height="250"><rect width="660" height="250" fill="'+paper+'"/>';
+[mark(ink),b,c].forEach((shape,i)=>{comparison+='<g transform="translate('+(30+i*220)+' 30)">'+shape+'</g><g transform="translate('+(80+i*220)+' 38) scale(.5)">'+shape+'</g><g transform="translate('+(40+i*220)+' 100) scale(3)">'+shape+'</g>';});
+comparison+='</svg>';await sharp(Buffer.from(comparison)).png().toFile('artifacts/brand/options-small-size.png');
+for (const width of [480,800]) await sharp('public/images/new-chapter.webp').resize({width}).webp({quality:82}).toFile('public/images/new-chapter-'+width+'.webp');

@@ -1,0 +1,14 @@
+---
+import type { TeamMember } from '../data/team';
+import Icon from './Icon.astro';
+interface Props { member: TeamMember; featured?: boolean }
+const {member, featured=false}=Astro.props;
+const initials=member.name.split(' ').filter(part=>!part.endsWith('.')).map(part=>part[0]).join('');
+---
+<article class:list={['leadership-profile',{'leadership-profile--featured':featured}]}>
+  <div class="leadership-portrait">
+    {member.photo ? <img src={member.photo} alt={member.photoAlt} width="1086" height="1448" loading="eager" decoding="async"/> : <div class="leadership-placeholder"><span class="portrait-monogram" aria-hidden="true">{initials}</span><span class="portrait-pending">Portrait coming soon</span><span class="portrait-caption">A real person. A story to share.</span></div>}
+    <span class="portrait-label">{featured?'The founder':'Community & connection'}</span>
+  </div>
+  <div class="leadership-copy"><p class="leadership-role">{member.role}</p><h3>{member.name}</h3><p class="leadership-preview">{member.shortBio}</p><button type="button" class="profile-trigger" data-profile-open={member.id} aria-haspopup="dialog" aria-controls={'profile-'+member.id} aria-label={'Read '+member.name+'’s story'}><span>Meet {member.name.split(' ')[0]}</span><span class="profile-arrow"><Icon name="arrow" size={20}/></span></button></div>
+</article>

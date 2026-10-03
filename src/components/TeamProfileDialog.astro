@@ -1,0 +1,14 @@
+---
+import type { TeamMember } from '../data/team';
+interface Props { member: TeamMember }
+const {member}=Astro.props;
+---
+<dialog class="team-dialog" id={'profile-'+member.id} aria-labelledby={'profile-name-'+member.id}>
+  <div class="team-dialog-toolbar"><span>THE PEOPLE BEHIND YCG</span><button type="button" data-profile-close autofocus aria-label={'Close '+member.name+'’s profile'}>Close <span aria-hidden="true">×</span></button></div>
+  <div class="team-dialog-layout"><aside class="team-dialog-identity">
+    {member.photo ? <img src={member.photo} alt={member.photoAlt} width="1086" height="1448"/> : <div class="dialog-portrait-placeholder"><span aria-hidden="true">{member.name.split(' ').filter(part=>!part.endsWith('.')).map(part=>part[0]).join('')}</span><p>Portrait coming soon</p></div>}
+    <p class="leadership-role">{member.role}</p><h2 id={'profile-name-'+member.id}>{member.name}</h2>
+    {member.location&&<p>{member.location}</p>}{member.languages?.length&&<p>Languages: {member.languages.join(', ')}</p>}
+    {member.links?.length&&<ul>{member.links.map(link=><li><a href={link.url}>{link.label} ↗</a></li>)}</ul>}
+  </aside><div class="team-dialog-story"><span class="eyebrow">IN THEIR OWN WAY</span><h3>{member.storyTitle}</h3>{member.story.map(paragraph=><p>{paragraph}</p>)}<p class="profile-signature">— {member.name}</p>{member.quote&&<blockquote>{member.quote}</blockquote>}{member.responsibilities?.length&&<section><h3>At YCG</h3><ul>{member.responsibilities.map(item=><li>{item}</li>)}</ul></section>}</div></div>
+</dialog>

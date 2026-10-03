@@ -1,0 +1,19 @@
+---
+import Base from '../../layouts/Base.astro';
+import {journeys,categories} from '../../data/catalog';
+import {journeyFilters} from '../../data/journey-filters';
+---
+<Base title="Your newcomer journey" description="Choose the newcomer circumstances that fit your situation and find relevant starting points."><section class="page-heading wrap"><a class="breadcrumb" href="/start/">← Start here</a><span class="eyebrow">YOUR CIRCUMSTANCES MATTER</span><h1 id="journey-heading">Find your journey.</h1><p class="intro" id="journey-description">Choose a situation below to see useful starting points.</p><p class="small muted" id="journey-location"></p></section><section class="wrap section compact"><p class="notice" id="journey-note">These are ways to organize information, not eligibility categories. Confirm service requirements directly.</p><div class="journey-results">{journeys.map(journey=><article class="journey-result" data-journey={journey.id}><h2>{journey.title}</h2><p>{journey.description}</p><p class="small">{journey.note}</p><div class="pills">{journey.categories.map(id=><a href={'/topics/'+id+'/'}>{categories.find(category=>category.id===id)?.title} →</a>)}</div><a class="text-link" data-directory-link href={'/resources/?'+journeyFilters[journey.id]}>Find relevant resources →</a></article>)}</div><a class="button navy" href="/start/#journey">Choose a different journey</a></section></Base>
+<script>
+  import {journeys,provinces} from '../../data/catalog';
+  const params=new URLSearchParams(location.search);
+  const selected=journeys.filter(item=>params.getAll('journey').includes(item.id));
+  const province=provinces.includes(params.get('province')??'')?params.get('province')!:'';
+  if(selected.length){
+    document.querySelector('#journey-heading')!.textContent=selected.length === 1 ? selected[0].title : 'Your starting points';
+    document.querySelector('#journey-description')!.textContent='Your circumstances can overlap. Explore the starting points that matter to you.';
+    document.querySelector('#journey-note')!.textContent='These suggestions organize information and do not confirm eligibility. Check the notes for each situation.';
+    document.querySelectorAll<HTMLElement>('[data-journey]').forEach(element=>{element.hidden=!selected.some(journey=>journey.id===element.dataset.journey);});
+  }
+  if(province){document.querySelector('#journey-location')!.textContent='Your location: '+province+'. Topic pages provide general orientation; the resource links below retain your province filter.';document.querySelectorAll<HTMLAnchorElement>('[data-directory-link]').forEach(link=>{const url=new URL(link.href);url.searchParams.set('province',province);link.href=url.pathname+url.search;});}
+</script>

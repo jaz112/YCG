@@ -1,0 +1,6 @@
+---
+import Base from '../../layouts/Base.astro';
+import JourneyFinder from '../../components/JourneyFinder.astro';
+import {checklists,faqs} from '../../data/catalog';
+---
+<Base title="Find your next step" description="Find a newcomer journey or a manageable first-days checklist, at your own pace."><section class="page-heading wrap"><span class="eyebrow">YOU DON'T NEED EVERY ANSWER TODAY</span><h1>Let's find your next step.</h1><p class="intro">Begin with your situation, or choose a small checklist. There is no single right pace for settling in.</p></section><div class="wrap"><JourneyFinder/></div><section class="section wrap" id="first-days"><div class="section-heading"><div><span class="eyebrow">YOUR FIRST DAYS IN CANADA</span><h2>Make a little room for progress.</h2></div></div><div class="timeline">{checklists.map((list,index)=><a class="timeline-item" href={'/start/'+list.id+'/'}><span class="timeline-number">0{index+1}</span><h3>{list.title}</h3><p>{list.description}</p><span class="text-link">Open checklist →</span></a>)}</div><p class="small muted">Suggested planning stages, not legal deadlines or a complete list of requirements.</p></section><section class="wrap faq-section"><h2>A few things to know</h2>{faqs.map(faq=><details><summary>{faq.question}</summary><p>{faq.answer}</p></details>)}</section></Base>

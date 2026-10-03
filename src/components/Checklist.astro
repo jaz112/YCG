@@ -1,0 +1,19 @@
+---
+interface Props { title: string; tasks: {label:string; href?:string; linkLabel?:string}[]; id: string }
+const {title,tasks,id}=Astro.props;
+---
+<section class="checklist-panel" data-checklist aria-labelledby={`${id}-title`}>
+  <div class="checklist-heading"><div><span class="eyebrow">YOUR OWN SMALL WINS</span><h2 id={`${id}-title`}>{title}</h2></div><span class="checklist-icon">✓</span></div>
+  <p class="small">Check off what you have done. Progress stays on this page only and resets on reload.</p>
+  <label class="sr-only" for={`${id}-progress`}>Checklist progress</label><progress id={`${id}-progress`} value="0" max={tasks.length}></progress><p data-progress-text role="status" class="progress-text">0 of {tasks.length} steps checked</p>
+  {tasks.map(task=><div class="check-row"><label><input type="checkbox" data-step/><span>{task.label}</span></label>{task.href&&<a href={task.href}>{task.linkLabel} <span aria-hidden="true">↗</span></a>}</div>)}
+  <button type="button" class="quiet-button" data-reset>Reset checklist</button>
+</section>
+<script>
+  document.querySelectorAll<HTMLElement>('[data-checklist]').forEach(panel=>{
+    const inputs=[...panel.querySelectorAll<HTMLInputElement>('[data-step]')];
+    const update=()=>{const count=inputs.filter(input=>input.checked).length;panel.querySelector<HTMLProgressElement>('progress')!.value=count;panel.querySelector('[data-progress-text]')!.textContent=`${count} of ${inputs.length} steps checked${count===inputs.length?' — a little more clarity.':''}`;};
+    inputs.forEach(input=>input.addEventListener('change',update));
+    panel.querySelector('[data-reset]')?.addEventListener('click',()=>{inputs.forEach(input=>{input.checked=false;});update();});
+  });
+</script>

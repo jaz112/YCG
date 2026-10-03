@@ -1,0 +1,69 @@
+---
+import Base from '../../layouts/Base.astro';
+import ResourceCard from '../../components/ResourceCard.astro';
+import Icon from '../../components/Icon.astro';
+import { categories, provinces } from '../../data/catalog';
+import { resources } from '../../data/resources';
+import { needs, audiences } from '../../data/discovery';
+---
+<Base title="Resources & find help" description="Find government information and community organizations, with location, source, and eligibility context.">
+  <section class="page-heading wrap"><span class="eyebrow">PEOPLE, PROGRAMS & PRACTICAL ANSWERS</span><h1>Find your next source of support.</h1><p class="intro">Useful places to turn, with the details to help you choose. A growing selection—not a complete list of Canadian services.</p></section>
+  <div class="directory wrap">
+    <form class="filter-panel" id="resource-filters"><h2>Narrow your search</h2><a class="filter-jump text-link" href="#resource-results">Go to results ↓</a><label for="resource-query">What do you need help with?</label><input type="search" name="q" id="resource-query" placeholder="Try OHIP, jobs, or a bank account"/>
+      <label for="category">Topic</label><select id="category" name="category"><option value="">All topics</option>{categories.map(category=><option value={category.id}>{category.title}</option>)}</select>
+      <label for="province">Province / territory</label><select id="province" name="province"><option value="">All of Canada</option>{provinces.map(province=><option>{province}</option>)}</select>
+      <details class="advanced-filters"><summary>More filters · city, need &amp; circumstance</summary><label for="city">City or region</label><input type="search" name="city" id="city" placeholder="For example, Toronto"/><p class="filter-hint">National and province-wide information remains in results. Local listings are currently limited.</p>
+      <label for="type">Source type</label><select name="type" id="type"><option value="">All sources</option><option value="government">Government</option><option value="public-agency">Public agency</option><option value="nonprofit">Community organization</option><option value="public-library">Public library</option></select>
+      <details class="discovery-filter"><summary>By need · choose any</summary><fieldset><legend class="sr-only">Needs</legend>{needs.map(need=><label><input type="checkbox" name="need" value={need.id}/>{need.label}</label>)}</fieldset></details>
+      <details class="discovery-filter"><summary>By circumstance · optional</summary><fieldset><legend class="sr-only">Audiences</legend>{audiences.map(audience=><label><input type="checkbox" name="audience" value={audience.id}/>{audience.label}</label>)}</fieldset></details>
+      <p class="filter-hint">Choose more than one. Results match any selected need and any selected audience, within your location. Audience tags describe relevance, not approval. Selections appear in this page’s address and browser history.</p>
+      </details><button type="submit" class="button">Find resources <Icon name="search" size={18}/></button><button type="reset" class="quiet-button">Clear filters</button>
+      <p class="small muted">Filters show relevance, not eligibility. Confirm costs, languages, availability, and requirements with the provider.</p>
+    </form>
+    <section class="directory-results" id="resource-results" tabindex="-1" aria-label="Resource results"><div class="results-heading"><p role="status" id="result-count">{resources.length} resources to look into</p><span class="badge blue">Source-linked information</span></div><noscript><p class="notice">Search requires JavaScript. You can still browse every resource below.</p></noscript><div class="resource-grid directory-grid">{resources.map(resource=><div data-resource-id={resource.id}><ResourceCard resource={resource}/></div>)}</div><div class="load-more-row"><button type="button" class="button navy" id="load-more" hidden>Show more resources</button></div><div id="empty-results" class="empty-state" hidden><Icon name="search" size={38}/><h2>No matching listings yet.</h2><p>This does not mean no help exists. Try a broader topic or clear the city filter.</p><a class="button navy" href="/resources/211-canada/">Find local support through 211 Canada</a></div></section>
+  </div>
+</Base>
+<script>
+  import { resources, organizationFor } from '../../data/resources';
+  import { matchesResource } from '../../lib/search';
+  const form=document.querySelector<HTMLFormElement>('#resource-filters')!;
+  const fields=['q','category','province','city','type'];
+  const controls=fields.map(name=>form.elements.namedItem(name) as HTMLInputElement|HTMLSelectElement);
+  const params=new URLSearchParams(location.search);
+  controls.forEach(control=>{control.value=params.get(control.name)??'';});
+  if(['city','type','need','audience'].some(name=>params.has(name)))form.querySelector<HTMLDetailsElement>('.advanced-filters')!.open=true;
+  const choices=Array.from(form.querySelectorAll<HTMLInputElement>('input[type="checkbox"]'));
+  choices.forEach(choice=>{choice.checked=params.getAll(choice.name).includes(choice.value);if(choice.checked)choice.closest('details')!.open=true;});
+  const more=document.querySelector<HTMLButtonElement>('#load-more')!;
+  let limit=9;
+  let matching: HTMLElement[]=[];
+  const render=()=>{
+    matching.forEach((element,index)=>{element.hidden=index>=limit;});
+    const shown=Math.min(limit,matching.length);
+    document.querySelector('#result-count')!.textContent=matching.length ? 'Showing '+shown+' of '+matching.length+' matching resources' : 'No matching resources';
+    more.hidden=shown>=matching.length;
+  };
+  more.addEventListener('click',()=>{const firstNew=matching[limit]?.querySelector<HTMLAnchorElement>('h3 a, h2 a, a');limit+=9;render();firstNew?.focus();});
+  const apply=()=>{
+    limit=9;matching=[];
+    const data=new FormData(form);
+    const filters={query:String(data.get('q')??''),category:String(data.get('category')??''),province:String(data.get('province')??''),city:String(data.get('city')??''),type:String(data.get('type')??''),needs:data.getAll('need').map(String),audiences:data.getAll('audience').map(String)};
+
+    resources.forEach(resource=>{
+      const organization=organizationFor(resource);
+      const visible=matchesResource(resource,filters,organization.name,organization.type);
+      const element=document.querySelector<HTMLElement>('[data-resource-id="'+resource.id+'"]');
+      if(element)element.hidden=!visible;
+      if(visible&&element)matching.push(element);
+    });
+    render();
+    document.querySelector<HTMLElement>('#empty-results')!.hidden=matching.length!==0;
+    const next=new URLSearchParams();controls.forEach(control=>{if(control.value)next.set(control.name,control.value);});
+    choices.forEach(choice=>{if(choice.checked)next.append(choice.name,choice.value);});
+    history.replaceState(null,'',location.pathname+(next.size?'?'+next.toString():''));
+  };
+  form.addEventListener('submit',event=>{event.preventDefault();apply();document.querySelector<HTMLElement>('#resource-results')!.focus();});
+  form.addEventListener('reset',event=>{event.preventDefault();controls.forEach(control=>{control.value='';});choices.forEach(choice=>{choice.checked=false;});apply();});
+  form.addEventListener('change',apply);
+  apply();
+</script>

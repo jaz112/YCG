@@ -1,0 +1,20 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Checklist from '../../components/Checklist.astro';
+export async function getStaticPaths() {
+  return (await getCollection('guides')).map(guide => ({ params: { id: guide.id }, props: { guide } }));
+}
+const { guide } = Astro.props;
+const { Content } = await render(guide);
+---
+<Base title={guide.data.title} description={guide.data.description} noindex={guide.data.status==='draft'}>
+  <article class="guide wrap">
+    <a class="breadcrumb" href="/start/">← Start here</a>
+    <div class="guide-heading"><span class="eyebrow">YCG GUIDE / YOUR FIRST STEPS</span><h1>{guide.data.title}</h1><p class="intro">{guide.data.description}</p></div>
+    {guide.data.status==='draft' ? <div class="notice"><strong>Draft guide — not yet verified.</strong> This explanation is awaiting editorial review. Check the linked source before acting.</div> : <div class="notice">Reviewed by {guide.data.reviewer}. Requirements may still change.</div>}
+    <div class="metadata"><span>Applies to: {guide.data.jurisdiction}</span><span>Last reviewed: {guide.data.lastVerified??'Not yet reviewed'}</span><span>{guide.data.steps.length} planning steps</span></div>
+    <div class="guide-grid"><div class="prose"><Content /></div><Checklist id="guide-checklist" title="Your starting checklist" tasks={guide.data.steps.map(label=>({label}))}/></div>
+    <section class="sources" aria-labelledby="sources-title"><span class="eyebrow">GO TO THE SOURCE</span><h2 id="sources-title">Places to continue</h2><p>YCG's explanation above is independently written. These links open external websites in this tab.</p><div class="source-grid">{guide.data.sources.map(source => <a class="source-card" href={source.url}><span class="source-type">{source.type==='government'?'Government source':'Community source'}</span><h3>{source.name}</h3><span>Read the source <span aria-hidden="true">↗</span></span></a>)}</div></section>
+  </article>
+</Base>

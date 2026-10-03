@@ -1,0 +1,12 @@
+---
+import { journeys, provinces } from '../data/catalog';
+const first=['preparing','arrived','settling','parent'];
+---
+<section class="journey-finder" id="journey" aria-labelledby="journey-title">
+  <div class="journey-copy"><span class="eyebrow">YOUR STORY IS YOUR OWN</span><h2 id="journey-title">Find your journey.</h2><p>There is no single newcomer experience. Tell us where you are, and find a useful place to begin.</p><p class="small">No account needed. These choices help organize information; they do not establish eligibility.</p></div>
+  <form action="/journeys/" class="journey-form">
+    <fieldset class="journey-choices"><legend>Which situations fit you?</legend><p class="small">Choose as many as you like, or leave blank to browse all.</p>{journeys.filter(journey=>first.includes(journey.id)).map(journey=><label><input type="checkbox" name="journey" value={journey.id}/><span>{journey.title}</span></label>)}<details class="more-journeys"><summary>More circumstances · choose any</summary>{journeys.filter(journey=>!first.includes(journey.id)).map(journey=><label><input type="checkbox" name="journey" value={journey.id}/><span>{journey.title}</span></label>)}</details></fieldset>
+    <label for="journey-province">Where are you settling?</label><select id="journey-province" name="province"><option value="">Not sure yet / anywhere in Canada</option>{provinces.map(province=><option>{province}</option>)}</select>
+    <button class="button" type="submit">Find my next steps <span aria-hidden="true">→</span></button>
+  </form>
+</section>

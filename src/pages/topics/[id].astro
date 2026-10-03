@@ -1,0 +1,17 @@
+---
+import Base from '../../layouts/Base.astro';
+import ResourceCard from '../../components/ResourceCard.astro';
+import {categories} from '../../data/catalog';
+import {resources} from '../../data/resources';
+import {topicPlans} from '../../data/topic-plans';
+export function getStaticPaths(){return categories.map(category=>({params:{id:category.id},props:{category}}));}
+const {category}=Astro.props;
+const plans=topicPlans[category.id]??[];
+const count=resources.filter(resource=>resource.service.categories.includes(category.id)).length;
+---
+<Base title={category.title} description={category.description}>
+  <section class="page-heading wrap"><a class="breadcrumb" href="/topics/">← Life in Canada</a><span class="eyebrow">ONE NEED. A CLEAR NEXT STEP.</span><h1>{category.title}</h1><p class="intro">{category.description}</p><nav class="pills" aria-label="On this page">{plans.map((plan,index)=><a href={'#step-'+index}>{plan.title} ↓</a>)}</nav></section>
+  <div class="wrap">{category.id==='family'&&<div class="family-feature"><div><h2>Find your family’s pathway</h2><p>Pregnancy, young parenting and 24 practical family topics, organised around your next step.</p></div><a class="button" href="/families/">Parents &amp; Families →</a></div>}<p class="coverage-note">Start with the situation that matters today. Check the location on each resource; detailed local listings currently focus on Toronto and Ontario.</p></div>
+  <div class="wrap pathway-steps">{plans.map((plan,index)=><section id={'step-'+index} class="topic-step"><div class="next-step-box"><span class="step-number">0{index+1}</span><div><h2>{plan.title}</h2><p>{plan.step}</p></div></div><p class="ask-prompt"><strong>A useful question:</strong> {plan.ask}</p><div class="resource-grid">{plan.resourceIds.map(id=><ResourceCard resource={resources.find(resource=>resource.id===id)!}/>)}</div></section>)}</div>
+  <section class="wrap section compact"><div class="browse-next"><div><h2>Need a more specific match?</h2><p>Explore all {count} resources in this topic by location, need or circumstance.</p></div><a class="button navy" href={'/resources/?category='+category.id}>Find resources for me →</a></div></section>
+</Base>

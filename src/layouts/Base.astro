@@ -1,0 +1,65 @@
+---
+import '../styles/global.css';
+import { categories } from '../data/catalog';
+import Icon from '../components/Icon.astro';
+import BrandMark from '../components/BrandMark.astro';
+interface Props { title: string; description: string; noindex?: boolean }
+const { title, description, noindex = false } = Astro.props;
+const path=Astro.url.pathname;
+const indexable = import.meta.env.PUBLIC_INDEXABLE === 'true' && Boolean(Astro.site) && !noindex;
+const canonical = Astro.site ? new URL(path, Astro.site) : null;
+const social = Astro.site ? new URL('/images/brand/social-preview.png', Astro.site) : null;
+---
+<!doctype html>
+<html lang="en">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><meta name="description" content={description}/><meta name="robots" content={indexable ? 'index, follow' : 'noindex, nofollow'}/>
+{canonical && <link rel="canonical" href={canonical}/>}
+<meta property="og:type" content="website"/><meta property="og:site_name" content="Your Canada Guide"/><meta property="og:title" content={title}/><meta property="og:description" content={description}/>{canonical && <meta property="og:url" content={canonical}/>}{social && <meta property="og:image" content={social}/>}
+<meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content={title}/><meta name="twitter:description" content={description}/>{social && <meta name="twitter:image" content={social}/>}
+<link rel="apple-touch-icon" href="/images/brand/apple-touch-icon.png"/>
+<noscript><style>.menu-toggle{display:none!important}#main-nav{display:flex!important;flex-wrap:wrap}</style></noscript><meta name="theme-color" content="#17253f"/><link rel="icon" href="/favicon.svg" type="image/svg+xml"/><title>{title} | Your Canada Guide</title></head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <div class="utility"><div class="wrap utility-inner"><span>Independent guidance. A more confident beginning.</span><a href="/about/trust/">Early preview · Our source policy ↗</a></div></div>
+  <header class="header">
+    <div class="wrap header-inner">
+      <a class="brand" href="/" aria-label="Your Canada Guide home"><BrandMark/><span class="brand-mark">y<span>c</span>g<span class="brand-dot">.</span></span><span class="brand-name">YOUR CANADA<br/>GUIDE</span></a>
+      <button class="menu-toggle" aria-expanded="false" aria-controls="main-nav" type="button">Menu <span aria-hidden="true">☰</span></button>
+      <nav id="main-nav" aria-label="Main navigation">
+        <a class:list={['nav-link',{active:path==='/'}]} href="/">Home</a>
+        <a class:list={['nav-link',{active:path.startsWith('/start')}]} href="/start/">Start here</a>
+        <details class="mega-menu"><summary>Life in Canada <span aria-hidden="true">⌄</span></summary><div class="mega-panel"><div class="mega-intro"><span class="eyebrow">MAKE SENSE OF THE EVERYDAY</span><h2>Find the answers<br/>that matter to you.</h2><a href="/topics/">All topics →</a></div><div class="mega-links">{categories.map(category=><a href={category.id==='family'?'/families/':'/topics/'+category.id+'/'}><Icon name={category.icon} size={20}/>{category.title}</a>)}</div></div></details>
+        <a class:list={['nav-link',{active:path.startsWith('/resources')}]} href="/resources/">Resources</a>
+        <a class:list={['nav-link',{active:path.startsWith('/about')||path==='/our-story/'}]} href="/about/">About YCG</a>
+        <a class="nav-help" href="/resources/?category=community">Find help <Icon name="arrow" size={17}/></a>
+      </nav>
+    </div>
+  </header>
+  <main id="main" tabindex="-1"><slot/></main>
+  <footer class="site-footer"><div class="wrap">
+    <div class="footer-grid"><div class="footer-about"><a class="brand" href="/"><BrandMark/><span class="brand-mark">ycg.</span><span class="brand-name">YOUR CANADA<br/>GUIDE</span></a><h2>A new chapter.<br/>A clearer way forward.</h2><p>Built from lived experience, for people finding their footing in Canada.</p></div>
+      <div><h3>Your next step</h3><a href="/start/">Find your journey</a><a href="/start/#first-days">Your first days</a><a href="/topics/work/">Work & careers</a><a href="/topics/housing/">Housing</a><a href="/topics/health/">Healthcare</a><a href="/topics/money/">Money & banking</a></div>
+      <div><h3>Find support</h3><a href="/families/">Parents &amp; Families</a><a href="/resources/">Resource directory</a><a href="/resources/?province=Ontario">Ontario resources</a><a href="/resources/?province=Quebec">Quebec resources</a><a href="/resources/newcomer-services/">IRCC service finder</a><a href="/topics/safety/">Safety & support</a><a href="/topics/">All topics</a></div>
+      <div><h3>About YCG</h3><a href="/our-story/">Our story</a><a href="/team/">Meet the team</a><a href="/about/">Mission & values</a><a href="/about/trust/">Trust & sources</a><a href="/about/contact/">Contact & support</a><a href="/about/accessibility/">Accessibility</a><a href="/about/privacy/">Privacy</a><a href="/about/terms/">Terms of use</a><a href="/about/disclaimer/">Disclaimer</a></div>
+    </div>
+    <div class="footer-bottom"><p>© {new Date().getFullYear()} Your Canada Guide. An independent initiative.</p><p>Not affiliated with the Government of Canada.</p></div><p class="disclaimer">YCG provides educational information, not individualized immigration, legal, medical, or financial advice. Check current requirements with the responsible organization or a qualified professional.</p>
+  </div></footer>
+</body>
+</html>
+<script>
+  const toggle=document.querySelector<HTMLButtonElement>('.menu-toggle');
+  const nav=document.querySelector<HTMLElement>('#main-nav');
+  toggle?.addEventListener('click',()=>{
+    const open=toggle.getAttribute('aria-expanded')!=='true';
+    toggle.setAttribute('aria-expanded',String(open));nav?.classList.toggle('is-open',open);
+  });
+  document.addEventListener('keydown',event=>{
+    if(event.key==='Escape'){
+      document.querySelectorAll<HTMLDetailsElement>('.mega-menu[open]').forEach(menu=>{menu.open=false;menu.querySelector('summary')?.focus();});
+      if(toggle?.getAttribute('aria-expanded')==='true'){toggle.setAttribute('aria-expanded','false');nav?.classList.remove('is-open');toggle.focus();}
+    }
+  });
+  document.addEventListener('click',event=>{
+    document.querySelectorAll<HTMLDetailsElement>('.mega-menu[open]').forEach(menu=>{if(!menu.contains(event.target as Node))menu.open=false;});
+  });
+</script>

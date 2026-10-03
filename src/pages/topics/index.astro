@@ -1,0 +1,6 @@
+---
+import Base from '../../layouts/Base.astro';
+import Icon from '../../components/Icon.astro';
+import {categories} from '../../data/catalog';
+---
+<Base title="Life in Canada" description="Find your way through everyday questions about work, housing, money, health, school, and community."><section class="page-heading wrap"><span class="eyebrow">MAKE THE EVERYDAY A LITTLE EASIER</span><h1>Life in Canada, one topic at a time.</h1><p class="intro">Start with what matters today. Each topic connects you to explanations and source-linked resources.</p></section><section class="wrap section compact"><div class="topic-index">{categories.map(category=><a href={'/topics/'+category.id+'/'}><span class="topic-icon"><Icon name={category.icon} size={28}/></span><h2>{category.title}</h2><p>{category.description}</p><span class="text-link">Find your starting points →</span></a>)}</div></section></Base>

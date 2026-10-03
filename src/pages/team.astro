@@ -1,0 +1,60 @@
+---
+import Base from '../layouts/Base.astro';
+import TeamMember from '../components/TeamMember.astro';
+import TeamProfileDialog from '../components/TeamProfileDialog.astro';
+import Icon from '../components/Icon.astro';
+import { team, futureRoles } from '../data/team';
+import '../styles/team.css';
+const leadership=[...team].sort((a,b)=>a.priority-b.priority);
+---
+<Base title="Meet the team" description="Meet Mary C. Nwosu and Grace Okoye: the people, perspectives and lived experiences behind Your Canada Guide.">
+  <div class="team-page"><section class="wrap team-intro"><a class="breadcrumb" href="/about/">← About YCG</a><div class="team-intro-grid"><div><span class="eyebrow">PEOPLE BEHIND THE PURPOSE</span><h1>Real lives.<br/>A shared <em>purpose.</em></h1></div><div class="team-intro-note"><span class="team-note-line" aria-hidden="true"></span><p>Good guidance begins with understanding.</p><p>Meet the people bringing lived experience, curiosity and care to a clearer beginning in Canada.</p></div></div></section>
+  <section class="wrap team-leadership" aria-labelledby="leadership-title"><div class="team-section-heading"><div><span class="eyebrow">01 / THE PEOPLE</span><h2 id="leadership-title">Leadership</h2></div><p>Two perspectives.<br/>One belief in the power of connection.</p></div><div class="leadership-grid">{leadership.map((member,index)=><TeamMember member={member} featured={index===0}/>)}</div><p class="team-interaction-note">Select a profile to read the story behind the role.</p></section>
+  <section class="wrap team-growing" aria-labelledby="growing-title"><div class="team-section-heading"><div><span class="eyebrow">02 / WHAT COMES NEXT</span><h2 id="growing-title">Growing the YCG team</h2></div><p>A thoughtful foundation<br/>for the work ahead.</p></div><p class="team-growing-intro">These are future roles in our developing team structure. They are not currently filled positions or advertised vacancies.</p><div class="future-role-grid">{futureRoles.map(role=><article class="future-role"><div class="future-role-top"><span class="future-role-icon"><Icon name={role.icon}/></span><span class="future-role-status">{role.status}</span></div><h3>{role.role}</h3><p>{role.description}</p></article>)}</div></section>
+  <section class="wrap team-closing"><span class="eyebrow">EXPERIENCE, SHARED WITH PURPOSE</span><h2>A little understanding.<br/>A more confident next step.</h2><div class="pills"><a href="/our-story/">Our story →</a><a href="/families/">Support for families →</a><a href="/about/trust/">Our approach to information →</a></div></section></div>
+  {leadership.map(member=><TeamProfileDialog member={member}/>)}
+  <noscript><section class="wrap section"><h2>Leadership stories</h2><p>Open a story below. Interactive profiles require JavaScript.</p>{leadership.map(member=><details><summary>{member.name} — {member.role}</summary><h3>{member.storyTitle}</h3>{member.story.map(paragraph=><p>{paragraph}</p>)}</details>)}</section></noscript>
+</Base>
+<script>
+  const triggers=Array.from(document.querySelectorAll<HTMLButtonElement>('[data-profile-open]'));
+  let opener: HTMLButtonElement | null=null;
+  let previousOverflow='';
+  for(const trigger of triggers){
+    trigger.addEventListener('click',()=>{
+      const dialog=document.getElementById('profile-'+trigger.dataset.profileOpen);
+      if(!(dialog instanceof HTMLDialogElement))return;
+      opener=trigger;
+      previousOverflow=document.body.style.overflow;
+      document.body.style.overflow='hidden';
+      dialog.showModal();
+      dialog.scrollTop=0;
+    });
+  }
+  for(const dialog of document.querySelectorAll<HTMLDialogElement>('.team-dialog')){
+    dialog.querySelector('[data-profile-close]')?.addEventListener('click',()=>dialog.close());
+    dialog.addEventListener('click',event=>{
+      if(event.target!==dialog)return;
+      const bounds=dialog.getBoundingClientRect();
+      if(event.clientX<bounds.left||event.clientX>bounds.right||event.clientY<bounds.top||event.clientY>bounds.bottom)dialog.close();
+    });
+    // Keep Tab within the profile, including profiles with only a Close button.
+    dialog.addEventListener('keydown',event=>{
+      if(event.key!=='Tab')return;
+      const focusable=Array.from(dialog.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex="0"]')).filter(element=>element.getClientRects().length>0);
+      const first=focusable[0];
+      const last=focusable[focusable.length-1];
+      if(!first)return;
+      if(event.shiftKey&&(document.activeElement===first||document.activeElement===dialog)){
+        event.preventDefault();last.focus();
+      }else if(!event.shiftKey&&(document.activeElement===last||document.activeElement===dialog)){
+        event.preventDefault();first.focus();
+      }
+    });
+    // Native showModal provides background inertness and Escape handling.
+    dialog.addEventListener('close',()=>{
+      document.body.style.overflow=previousOverflow;
+      opener?.focus({preventScroll:true});
+      opener=null;
+    });
+  }
+</script>

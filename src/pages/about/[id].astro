@@ -1,0 +1,7 @@
+---
+import Base from '../../layouts/Base.astro';
+import {policies} from '../../data/policies';
+export function getStaticPaths(){return policies.map(policy=>({params:{id:policy.id},props:{policy}}));}
+const {policy}=Astro.props;
+---
+<Base title={policy.title} description={policy.description}><article class="story-page wrap prose"><a class="breadcrumb" href="/about/">← About YCG</a><span class="eyebrow">CLEAR ABOUT OUR RESPONSIBILITIES</span><h1>{policy.title}</h1><p class="intro">{policy.description}</p>{policy.sections.map(section=><section><h2>{section.heading}</h2><p>{section.body}</p></section>)}<a class="button navy" href="/resources/">Find a source or organization →</a></article></Base>
