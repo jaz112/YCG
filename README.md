@@ -4,7 +4,7 @@ YCG is an independent newcomer information website: clear next steps, official s
 
 ## Status
 
-A live early-release information website hosted on Vercel: https://ycg-khaki.vercel.app/. Production QA is in progress; the source repository remains private pending final review. Mary C. Nwosu’s approved founder profile and original photo are live locally; Grace Okoye’s approved profile and original photo are also installed. Public feedback is available at okochamary006@gmail.com through an email link; no contact form or server-side mail delivery is installed. The guide is marked draft. Indexing is disabled by default. See FINISHING-REVIEW.md for the October 3 finishing pass, ADDENDUM-REVIEW.md for the family/brand work, CONTENT-BACKLOG.md for coverage priorities, and PRODUCTION-REVIEW.md for earlier launch checks.
+A live early-release information website hosted on Vercel: https://ycg-khaki.vercel.app/. The public source repository and production review are complete, with the documented limitations below. Mary C. Nwosu’s approved founder profile and original photo are live; Grace Okoye’s approved profile and original photo are also installed. Public feedback is available at okochamary006@gmail.com through an email link; no contact form or server-side mail delivery is installed. The guide is marked draft. Indexing is disabled by default. See FINISHING-REVIEW.md for the October 3 finishing pass, ADDENDUM-REVIEW.md for the family/brand work, CONTENT-BACKLOG.md for coverage priorities, and PRODUCTION-REVIEW.md for the release checks.
 
 ## Stack and requirements
 
@@ -88,7 +88,7 @@ Never store secrets under `PUBLIC_`. No API key is needed. Noindex is not access
 
 ## Deployment
 
-Vercel configuration is included in `vercel.json`: framework Astro, install `npm ci`, build `npm run verify`, output `dist`, and security headers. Select Node 24 in Vercel. Connect the private `jaz112/YCG` repository to the existing Vercel project and use `main` as its production branch. Set `SITE_URL` to the confirmed HTTPS deployment origin; keep `PUBLIC_INDEXABLE` unset until the live audit is complete.
+Vercel configuration is included in `vercel.json`: framework Astro, install `npm ci`, build `npm run verify`, output `dist`, and security headers. Select Node 24 in Vercel. Connect the public `jaz112/YCG` repository to the existing Vercel project and use `main` as its production branch. Set `SITE_URL` to the confirmed HTTPS deployment origin; keep `PUBLIC_INDEXABLE` unset until search discovery is intentionally approved.
 
 Live website: https://ycg-khaki.vercel.app/ (confirmed during production review).
 
@@ -100,7 +100,7 @@ Before enabling indexing: set the real origin, approve team/story/content and po
 
 ## GitHub
 
-The private source repository is https://github.com/jaz112/YCG. The first website upload preserves its existing initial commit. Commit source, public web assets, docs, scripts, tests, lockfile, configuration, `.env.example`, and `.github`. Do not commit `.env*` except the example, node_modules, dist, .astro, logs, private photo originals, or user documents. Review `git status --short` and `git diff --cached` before committing. Repository visibility must remain private until the production and history reviews pass.
+The public source repository is https://github.com/jaz112/YCG. The first website upload preserves its existing initial commit. Commit source, public web assets, docs, scripts, tests, lockfile, configuration, `.env.example`, and `.github`. Do not commit `.env*` except the example, node_modules, dist, .astro, logs, private photo originals, or user documents. Review `git status --short` and `git diff --cached` before committing. Keep normal secret-hygiene checks in place for every future public commit.
 
 ## Development practice
 
