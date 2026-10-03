@@ -4,7 +4,7 @@ YCG is an independent newcomer information website: clear next steps, official s
 
 ## Status
 
-A working static website, prepared for deployment but not yet approved for public service launch. Mary C. Nwosu’s approved founder profile and original photo are live locally; Grace Okoye’s approved profile and original photo are also installed. Contact delivery is not enabled. The guide is marked draft. Indexing is disabled by default. See FINISHING-REVIEW.md for the October 3 finishing pass, ADDENDUM-REVIEW.md for the family/brand work, CONTENT-BACKLOG.md for coverage priorities, and PRODUCTION-REVIEW.md for earlier launch checks.
+A live early-release information website hosted on Vercel: https://ycg-khaki.vercel.app/. Production QA is in progress; the source repository remains private pending final review. Mary C. Nwosu’s approved founder profile and original photo are live locally; Grace Okoye’s approved profile and original photo are also installed. Public feedback is available at okochamary006@gmail.com through an email link; no contact form or server-side mail delivery is installed. The guide is marked draft. Indexing is disabled by default. See FINISHING-REVIEW.md for the October 3 finishing pass, ADDENDUM-REVIEW.md for the family/brand work, CONTENT-BACKLOG.md for coverage priorities, and PRODUCTION-REVIEW.md for earlier launch checks.
 
 ## Stack and requirements
 
@@ -90,9 +90,9 @@ Never store secrets under `PUBLIC_`. No API key is needed. Noindex is not access
 
 Vercel configuration is included in `vercel.json`: framework Astro, install `npm ci`, build `npm run verify`, output `dist`, and security headers. Select Node 24 in Vercel. Connect the private `jaz112/YCG` repository to the existing Vercel project and use `main` as its production branch. Set `SITE_URL` to the confirmed HTTPS deployment origin; keep `PUBLIC_INDEXABLE` unset until the live audit is complete.
 
-Intended deployment address: https://ycg-khaki.vercel.app/ (not yet verified live).
+Live website: https://ycg-khaki.vercel.app/ (confirmed during production review).
 
-Alternative Netlify configuration is included: `npm run verify`, output `dist`, Node 24, security headers, and immutable caching for fingerprinted assets. It serves `404.html` for missing routes. No deployment or public upload has been performed.
+Alternative Netlify configuration is included: `npm run verify`, output `dist`, Node 24, security headers, and immutable caching for fingerprinted assets. It serves `404.html` for missing routes. The active deployment uses Vercel; this Netlify configuration is an optional alternative.
 
 On other hosts, reproduce the headers, directory-index routing, and a genuine HTTP 404 using `dist/404.html`. Do not add a universal SPA fallback. The current root-relative URLs require hosting at the domain root; GitHub project Pages under `/repository/` needs a separate base-path change. Use an HTTPS custom domain and confirm actual headers after deployment.
 

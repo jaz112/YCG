@@ -29,6 +29,9 @@ for (const [page, html] of content) {
       if (!content.get(file).includes(`id="${id}"`)) issues.push(`${label}: missing anchor ${raw}`);
     }
   }
+  for (const script of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
+    if (!/\bsrc\s*=/.test(script[1]) && !/type=["']application\/(?:ld\+)?json["']/.test(script[1]) && script[2].trim()) issues.push(label+': inline executable script blocked by production CSP');
+  }
   if (/<img\b(?![^>]*\balt=)[^>]*>/g.test(html)) issues.push(`${label}: image without alt`);
   if (/file:\/\/|href="javascript:/i.test(html)) issues.push(`${label}: unsafe or local path`);
 }
